@@ -1,5 +1,5 @@
 const fs = require('node:fs')
-const file = './test.txt'
+const file = './data.txt'
 
 // Methods
 
@@ -47,6 +47,33 @@ function isGamePossible(limits, tokens) {
 	return isPossible
 }
 
+function minimumViableCubes(tokens) {
+
+	const minViable = {}
+	Object.keys(tokens).map((color) => {
+		let mostCubesShown = 0
+		for (num of tokens[color]) {
+			if (num > mostCubesShown) {
+				mostCubesShown = num
+			}
+		}
+		minViable[color] = mostCubesShown
+	})
+	return minViable
+}
+
+function powerOfSet(game) {
+	const set = []
+	Object.keys(game).map((key) => {
+		set.push(game[key])
+	})
+	const initialValue = set.pop()
+	let power = set.reduce((accumulator, currentValue) => accumulator * currentValue, initialValue,)
+
+	return power
+}
+
+
 // Model
 
 const maxCubes = {
@@ -81,17 +108,21 @@ for (let line of parsedData) {
 	const id = extractId(line)
 	const tokens = parseTokens(line)
 	console.log(tokens)
-	const possible = isGamePossible(maxCubes, tokens)
+	const minCubes = minimumViableCubes(tokens)
+	const power = powerOfSet(minCubes)
+	// const possible = isGamePossible(maxCubes, tokens)
 
 	console.log(`Game: ${id}
 Red: ${tokens.red}
 Green: ${tokens.green}
 Blue: ${tokens.blue}
-Possble: ${possible}`)
+Power: ${power}`)
 
-	if (possible) {
-		sum += id
-	}
+	// if (possible) {
+	// 	sum += id
+	// }
+
+	sum += power
 
 	console.log()
 
