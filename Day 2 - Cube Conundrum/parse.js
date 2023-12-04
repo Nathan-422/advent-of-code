@@ -1,5 +1,5 @@
 const fs = require('node:fs')
-const file = './data.txt'
+const file = './test.txt'
 
 // Methods
 
@@ -18,23 +18,33 @@ function parseTokens(string) {
 		}
 	})
 
-	console.log(colors)
+	// console.log(colors)
 	return colors
 }
 
 function extractId(string, pattern = '(?<=Game )[0-9]+(?=:)', flags = '') {
-	console.log(string)
 	let result = new RegExp(pattern, flags).exec(string)
-
-	console.log('ID: ' + result)
+	// console.log('ID: ' + result)
 
 	if (result === null) return null
 
 	return Number.parseInt(result)
 }
 
-function isGamePossible() {
-
+function isGamePossible(limits, tokens) {
+	let isPossible = true
+	Object.keys(limits).map((color) => {
+		for (let numCubes of tokens[color]) {
+			if (!isPossible) break
+			console.log(`Cubes: ${numCubes + ' ' + color} - Max: ${limits[color]}`)
+			if (numCubes > limits[color]) {
+				console.log('VIOLATION OF PHYSICS')
+				isPossible = false
+				break
+			}
+		}
+	})
+	return isPossible
 }
 
 // Model
@@ -44,18 +54,6 @@ const maxCubes = {
 	green: 13,
 	blue: 14
 }
-
-// game = {
-// 	id: number
-// 	cubesShown: shownCubes[]
-// }
-
-// shownCubes {
-// 	blue: number
-// 	red: number
-// 	green: number
-// }
-
 
 // Execution
 
@@ -72,6 +70,7 @@ let parsedData = data.split('\n')
 let sum = 0
 
 for (let line of parsedData) {
+	if (!line) break
 	// let tokens = (line)
 	//
 	// for (let i = 0; i < tokens.length; i++) {
@@ -81,19 +80,21 @@ for (let line of parsedData) {
 	//
 	const id = extractId(line)
 	const tokens = parseTokens(line)
+	console.log(tokens)
+	const possible = isGamePossible(maxCubes, tokens)
+
+	console.log(`Game: ${id}
+Red: ${tokens.red}
+Green: ${tokens.green}
+Blue: ${tokens.blue}
+Possble: ${possible}`)
+
+	if (possible) {
+		sum += id
+	}
+
 	console.log()
 
-
-	// let first = tokens[0]
-	// let last = tokens[tokens.length - 1]
-	//
-	// if (tokens.length > 0) {
-	// 	console.log(`Coordinate\t${first + last}`)
-	// 	console.log('')
-	// 	sum += Number.parseInt(first + last)
-	// } else {
-	// 	console.log('Empty line found')
-	// }
 }
 
 console.log(sum)
