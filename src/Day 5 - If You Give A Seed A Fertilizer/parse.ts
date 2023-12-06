@@ -16,7 +16,13 @@ type Almanac = {
 
 type Conversion = {
 	name: string
-	lookups: Map<number, number>
+	lookups: Lookup[]
+}
+
+type Lookup = {
+	start: number
+	output: number
+	range: number
 }
 
 const parseData = (data: string[]) => {
@@ -27,18 +33,20 @@ const parseData = (data: string[]) => {
 	const rawConversions = data.slice(1).join('\n').split(/\n(?=\w+-\w+-\w+)/g)
 	const conversions = rawConversions.map((line) => {
 		const parts = (line.split(/\smap:\s/))
-		const map = new Map<number, number>
-		parts[1].split('\n').forEach((lookup) => {
+		// const numberLookups = 
+		const lookyLoos = parts[1].split('\n').map((lookup) => {
 			const parts = lookup.split(' ').map((part) => {
 				return Number.parseInt(part)
 			})
-			for (let i = 0; i < parts[2]; i++) {
-				map.set(parts[1] + i, parts[0] + i)
+			return {
+				start: parts[1],
+				output: parts[0],
+				range: parts[2]
 			}
 		})
 		const converts: Conversion = {
 			name: parts[0],
-			lookups: map
+			lookups: lookyLoos
 		}
 		return converts
 	})
@@ -50,20 +58,31 @@ const parseData = (data: string[]) => {
 }
 
 const almanac = parseData(data)
-console.log(almanac.tables[0].lookups.has(0))
+console.log(almanac)
 
 const seeds = []
 
 for (let seed of almanac.seeds) {
 	let seedConverted = seed
+	console.log('='.repeat(35))
+	console.log(`Seed ${seedConverted}`)
 	for (let i = 0; i < almanac.tables.length; i++) {
-		const lookup = almanac.tables[i].lookups
-		if (lookup.has(seedConverted)) {
-			seedConverted = lookup.get(seedConverted)
+		const lookups = almanac.tables[i].lookups
+		for (let lookup of lookups) {
+			if (seedConverted >= lookup.start && seedConverted <= lookup.start + lookup.range - 1) {
+				console.log(`${almanac.tables[i].name}\nBase: ${lookup.start}\nSeed: ${seedConverted}\nEnd : ${lookup.start + lookup.range - 1}`)
+				let difference = seedConverted - lookup.start
+				console.log(`Diff: ${difference}`)
+				seedConverted = lookup.output + difference
+				console.log(`Outp: ${seedConverted}`)
+				break
+			}
 		}
 	}
 	seeds.push(seedConverted)
 }
+
+console.log(seeds)
 
 console.log(seeds.reduce((accu, current) => {
 	if (current < accu) {
