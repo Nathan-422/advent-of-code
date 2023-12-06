@@ -62,27 +62,39 @@ console.log(almanac)
 
 const seeds = []
 
-for (let seed of almanac.seeds) {
-	let seedConverted = seed
-	console.log('='.repeat(35))
-	console.log(`Seed ${seedConverted}`)
-	for (let i = 0; i < almanac.tables.length; i++) {
-		const lookups = almanac.tables[i].lookups
-		for (let lookup of lookups) {
-			if (seedConverted >= lookup.start && seedConverted <= lookup.start + lookup.range - 1) {
-				console.log(`${almanac.tables[i].name}\nBase: ${lookup.start}\nSeed: ${seedConverted}\nEnd : ${lookup.start + lookup.range - 1}`)
-				let difference = seedConverted - lookup.start
-				console.log(`Diff: ${difference}`)
-				seedConverted = lookup.output + difference
-				console.log(`Outp: ${seedConverted}`)
-				break
+for (let seed = 0; seed < almanac.seeds.length - 1; seed += 2) {
+	console.log(`Starting seed: ${seed / 2} of ${almanac.seeds.length / 2} - ${almanac.seeds[seed + 1]} to go`)
+	for (let range = 0; range < almanac.seeds[seed + 1]; range++) {
+		let seedConverted = almanac.seeds[seed] + range
+		// console.log('='.repeat(35))
+		// console.log(`Seed ${seedConverted}`)
+		for (let i = 0; i < almanac.tables.length; i++) {
+			const lookups = almanac.tables[i].lookups
+			for (let lookup of lookups) {
+				if (seedConverted >= lookup.start && seedConverted <= lookup.start + lookup.range - 1) {
+					// console.log(`${almanac.tables[i].name}\nBase: ${lookup.start}\nSeed: ${seedConverted}\nEnd : ${lookup.start + lookup.range - 1}`)
+					// console.log(`${almanac.tables[i].name}\nSeed: ${seedConverted}`)
+					let difference = seedConverted - lookup.start
+					seedConverted = lookup.output + difference
+					// console.log(`Outp: ${seedConverted}\n`)
+					break
+				}
 			}
 		}
+		if (seeds.length === 0) {
+			seeds.push(seedConverted)
+		}
+
+		if (seedConverted < seeds[0]) {
+			seeds[0] = seedConverted
+		}
 	}
-	seeds.push(seedConverted)
+
+
+	// seeds.push(seedConverted)
 }
 
-console.log(seeds)
+// console.log(seeds)
 
 console.log(seeds.reduce((accu, current) => {
 	if (current < accu) {
