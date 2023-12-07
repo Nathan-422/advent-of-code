@@ -10,6 +10,7 @@ const test = readFileSync(testFile, 'utf8').split("\n").filter((line) => {
 })
 
 const input = data
+console.log(data)
 
 type Race = {
 	time: number
@@ -21,9 +22,12 @@ const distances = input.at(1).split(' ').slice(1).filter((string) => string !== 
 
 const races: Race[] = []
 
-for (let i = 0; i < times.length; i++) {
-	races.push({ time: Number.parseInt(times[i]), recordDistance: Number.parseInt(distances[i]) })
-}
+
+races.push({ time: Number.parseInt(times.join('')), recordDistance: Number.parseInt(distances.join('')) })
+
+// for (let i = 0; i < times.length; i++) {
+// 	races.push({ time: Number.parseInt(times[i]), recordDistance: Number.parseInt(distances[i]) })
+// }
 
 console.log(races)
 
