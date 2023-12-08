@@ -10,19 +10,20 @@ console.log(input)
 
 const cardValue = new Map(
 	[
-		['A', 13],
-		['K', 12],
-		['Q', 11],
-		['J', 10],
-		['T', 9],
-		['9', 8],
-		['8', 7],
-		['7', 6],
-		['6', 5],
-		['5', 4],
-		['4', 3],
-		['3', 2],
-		['2', 1]
+		['A', 14],
+		['K', 13],
+		['Q', 12],
+		['J', 11],
+		['T', 10],
+		['9', 9],
+		['8', 8],
+		['7', 7],
+		['6', 6],
+		['5', 5],
+		['4', 4],
+		['3', 3],
+		['2', 2],
+		['J', 1]
 	]
 )
 
@@ -44,9 +45,24 @@ type Hand = {
 }
 
 const parseHandType = (cards: string) => {
+	console.log(cards)
 	const suitCounts = cards.split('').reduce((map, cardSuit) => {
 		return map.set(cardSuit, (map.get(cardSuit) || 0) + 1)
 	}, new Map<string, number>)
+
+	const numOfJokers = suitCounts.get('J')
+
+	if (numOfJokers !== 5 && suitCounts.delete("J")) {
+		const [highestSuit] = [...suitCounts.entries()].reduce((highest, current) => {
+			if (highest[1] < current[1]) {
+				return current
+			} else {
+				return highest
+			}
+		})
+		suitCounts.set(highestSuit, numOfJokers + suitCounts.get(highestSuit))
+	}
+
 
 	switch (suitCounts.size) {
 		case 1:
@@ -101,11 +117,11 @@ const hands: Hand[] = input.map((hand) => {
 })
 
 
-// console.log(
-// 	hands
-// 		.sort((a, b) => b.isStronger(a))
-// 		.map((hand, i, hands) => `Hand: ${hand.hand} | Type: ${hand.type} | Score: ${(hands.length - i) * hand.bid} | Loop: ${i}`
-// 		))
+console.log(
+	hands
+		.sort((a, b) => b.isStronger(a))
+		.map((hand, i, hands) => `Hand: ${hand.hand} | Type: ${hand.type} | Score: ${(hands.length - i) * hand.bid}`
+		))
 
 console.log(
 	hands
