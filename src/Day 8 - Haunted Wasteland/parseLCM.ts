@@ -38,11 +38,13 @@ function isDestination(currentLocations: node[], steps: number) {
 			i += 1
 		}
 	}
-	if (i === currentLocations.length - 1) {
-		return true
-	} else if (i >= 3) {
+	if (i >= 1) {
 		console.log("Steps: " + steps + currentLocations.reduce((pre, cur) => {
-			return `${pre} - ${cur.root}`
+			if (cur.root[2] === 'Z') {
+				return `${pre} - ${cur.root}`
+			} else {
+				return `${pre} - ---`
+			}
 		}, ` (${i})`))
 	}
 	return false
