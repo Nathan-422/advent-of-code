@@ -34,24 +34,20 @@ const populateDifferences = (currentHistory: Array<number[]>): Array<number[]> =
 	return populateDifferences([...currentHistory, getNewDifference(currentExtrapolation)])
 }
 
-// const extNextValues = (histWithDiff: number[][]) => {
-//
-// }
-
-
 console.log(input.map((history) => {
 	return populateDifferences([history]).reverse().reduce((newDiffs, extrap, i, history) => {
 		if (i < history.length) {
 			// escape row of zeros
 			if (i === 0) {
-				return [...newDiffs, [...extrap, 0]]
+				return [...newDiffs, [0, ...extrap]]
 			}
-			return [...newDiffs, [...extrap, extrap.at(-1) + newDiffs[i - 1].at(-1)]]
+			return [...newDiffs, [extrap.at(0) - newDiffs[i - 1].at(0), ...extrap]]
 		}
 
 		return newDiffs.reverse()
 	}, new Array<number[]>)
-}).reduce((accu, current) => {
-	return accu + current.at(-1).at(-1)
-}, 0)
+})
+	.reduce((accu, current) => {
+		return accu + current.at(-1).at(0)
+	}, 0)
 )
