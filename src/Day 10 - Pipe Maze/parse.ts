@@ -1,25 +1,12 @@
-import { readFileSync } from 'node:fs'
-const testFile = './test.txt'
+import { readFileSync, writeFileSync } from 'node:fs'
+const testFile = './test2.txt'
 const dataFile = './data.txt'
+const outFile = './output.txt'
 
 const data = readFileSync(dataFile, 'utf8').split("\n").filter((line) => line !== "")
 const test = readFileSync(testFile, 'utf8').split("\n").filter((line) => line !== "")
 
 const input = data
-// console.log(input.join('\n'))
-
-// function getNextMove(this: string, from: direction): number[] {
-// 	return [0, 1]
-// }
-//
-// const directionMap = {
-// 	"J": getNextMove,
-// 	"L": getNextMove,
-// 	"7": getNextMove,
-// 	"F": getNextMove,
-// 	"-": getNextMove,
-// 	"|": getNextMove
-// }
 
 enum direction {
 	LEFT,
@@ -143,7 +130,7 @@ function validFirstDirections(maze: string[][], start: number[]): direction[] {
 		// console.log("Pushing DOWN")
 		directions.push(direction.DOWN)
 	}
-	return directions
+	return directions.reverse()
 }
 
 const maze = input.map((line) => {
@@ -197,13 +184,42 @@ const route: LinkedList = {
 	}
 }
 
+function outputDotToLeft(newMaze: string[][], pipe: routeElement) {
+	const [y, x] = dirToCoords((pipe.value.from + 1) % 4)
+	const [k, j] = dirToCoords((pipe.value.to + 4 - 1) % 4)
+	const leftContentIncomming = newMaze[pipe.value.pos[0] + y][pipe.value.pos[1] + x]
+	console.log(pipe.value.pos[0] + k)
+	console.log(newMaze[pipe.value.pos[0] + k].join(''))
+	const leftContentOutgoing = newMaze[pipe.value.pos[0] + k][pipe.value.pos[1] + j]
+
+	// console.log("Starting char analysis. Direction: " + (pipe.value.from + 1) % 4 + ". Coords: (y=" + (pipe.value.pos[0] + y) + ", x=" + (pipe.value.pos[1] + x) + ")")
+	console.log(`Coming from ${[pipe.value.pos[0] + 1, pipe.value.pos[1] + 1]}. From: ${pipe.value.from}. To: ${pipe.value.to}`)
+	if (leftContentIncomming === blankStandin) {
+		// console.log(leftContentIncomming + " MATCH!")
+		outputMap[pipe.value.pos[0] + y][pipe.value.pos[1] + x] = '.'
+	}
+
+	if (leftContentOutgoing === blankStandin) {
+		// console.log(leftContentOutgoing + " MATCH!")
+		outputMap[pipe.value.pos[0] + k][pipe.value.pos[1] + j] = '.'
+	}
+
+	// console.log()
+}
+
+const blankStandin = '~'
+const outputMap = (blankStandin.repeat(maze[0].length) + '\n').repeat(maze.length).split('\n').map((line) => { return line.split('') })
 // console.log(route.getFirst())
 // console.log(route.getLast())
-route.getFirst().next = getPipeFromDirection(maze, startingCoords, route.getFirst().value.to)
 // console.log(route.getLast())
+
+route.getFirst().next = getPipeFromDirection(maze, startingCoords, route.getFirst().value.to)
+outputMap[route.getFirst().value.pos[0]][route.getFirst().value.pos[1]] = route.getFirst().value.pipe
 
 let lastPipe = route.getLast()
 while (true) {
+	outputMap[lastPipe.value.pos[0]][lastPipe.value.pos[1]] = lastPipe.value.pipe
+
 	console.log(lastPipe)
 	console.log("Number of pipes: " + route.size)
 	if (lastPipe.value.pipe === 'S') {
@@ -217,4 +233,19 @@ while (true) {
 
 }
 
-console.log()
+
+lastPipe = route.getFirst()
+while (true) {
+	outputDotToLeft(outputMap, lastPipe)
+
+	if (!lastPipe.next) {
+		console.log("Found last pipe")
+		break
+	}
+
+	lastPipe = lastPipe.next
+
+}
+
+writeFileSync(outFile, outputMap.map((line) => { return line.join('') }).join('\n'))
+
