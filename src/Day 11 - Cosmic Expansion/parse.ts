@@ -6,9 +6,8 @@ const data = readFileSync(dataFile, 'utf8').split("\n").filter((line) => line !=
 const test = readFileSync(testFile, 'utf8').split("\n").filter((line) => line !== "")
 
 const input = data
-// console.log(input)
 
-const expansionMultiplier = 2
+const expansionMultiplier = 1000000
 
 type galaxy = {
 	x: number
@@ -20,20 +19,8 @@ const calculateDistance = (pointA: galaxy, pointB: galaxy): number => {
 	return Math.abs(pointA.x - pointB.x) + Math.abs(pointA.y - pointB.y)
 }
 
-const verticalExpanded = input.reduce((accu, line) => {
-	const isEmptySpace = line.indexOf('#')
-	if (isEmptySpace === -1) {
-		const newLines = (line + '\n')
-			.repeat(expansionMultiplier)
-			.split('\n')
-			.filter((line) => line !== "")
-
-		return [...accu, ...newLines]
-	}
-	return [...accu, line]
-}, [])
-
-const expandedU: string[][] = verticalExpanded.map((row) => { return row.split('') }).reduce((result, _: string[], colIndex: number, arr: string[][]) => {
+console.log("Expanding horizontally")
+const hExpanded: string[][] = input.map((row) => { return row.split('') }).reduce((result, _: string[], colIndex: number, arr: string[][]) => {
 	if (colIndex >= arr[0].length) {
 		return result
 	}
@@ -44,7 +31,7 @@ const expandedU: string[][] = verticalExpanded.map((row) => { return row.split('
 
 	// If the column is uniform, repeat it; otherwise, keep it as is
 	const modifiedColumn = isColumnUniform
-		? Array(verticalExpanded.length).fill('.'.repeat(2))
+		? Array(input.length).fill('.'.repeat(expansionMultiplier))
 		: arr.map(row => row[colIndex]);
 
 	// Update the result matrix with the modified column
@@ -52,11 +39,29 @@ const expandedU: string[][] = verticalExpanded.map((row) => { return row.split('
 		return result.map((_: string[], rowIndex: number) => [modifiedColumn[rowIndex]]);
 	}
 	return result.map((row: string[], rowIndex: number) => [...row, modifiedColumn[rowIndex]]);
-}, new Array<string[]>(verticalExpanded.length).fill(['']))
+}, new Array<string[]>(input.length).fill(['']))
 
-console.log(expandedU.map((row: string[]) => row.join('')).join('\n'))
+console.log("Expanding vertically")
+const expandedU: string[] = hExpanded.map(line => line.join('')).reduce((accu, line, index) => {
+	console.log(index)
+	const isEmptySpace = line.indexOf('#')
+	if (isEmptySpace === -1) {
+		const lineArr = new Array<string>(expansionMultiplier).fill(line)
+		// const newLines = (line + '\n')
+		// 	.repeat(expansionMultiplier)
+		// 	.split('\n')
+		// 	.filter((line) => line !== "")
+		return [...accu, ...lineArr]
+	}
+	return [...accu, line]
+}, new Array<string>())
 
-const galaxies = expandedU.map((line) => line.join('')).reduce((accu, line, i) => {
+// console.log(expandedU.map((row: string[]) => row.join('')).join('\n'))
+
+console.log("x=" + expandedU.length + " y=" + expandedU[0].length)
+console.log("Finding galaxies")
+const galaxies = expandedU.reduce((accu, line, i) => {
+	console.log(i)
 	const gals = [...line.matchAll(/#/g)].map((gal, loopNum) => {
 		return {
 			x: gal.index,
@@ -67,18 +72,20 @@ const galaxies = expandedU.map((line) => line.join('')).reduce((accu, line, i) =
 	return [...accu, ...gals]
 }, new Array<galaxy>())
 
-console.log(galaxies)
+// console.log(galaxies)
 
+console.log("Calculating distances")
 const distances = galaxies.reduce((accu, galaxy, _, galaxies) => {
 	const galsToMatch = galaxies.filter(gal => gal.id > galaxy.id)
 	const dists = galsToMatch.map((gal) => {
 		const distance = calculateDistance(galaxy, gal)
-		console.log(`(${galaxy.id} to ${gal.id}) dist: ${distance}`)
+		// console.log(`(${galaxy.id} to ${gal.id}) dist: ${distance}`)
 		return distance
 	})
 	return [...accu, ...dists]
 }, new Array<number>)
 
-console.log(distances.length)
-console.log(distances)
+
+// console.log(distances.length)
+// console.log(distances)
 console.log(distances.reduce((accu, dist) => accu + dist))
