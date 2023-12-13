@@ -5,10 +5,14 @@ const dataFile = './data.txt'
 type conditionRecord = {
 	record: string
 	groupLengths: number[]
-	// numOfGroups: number
 }
 
-function parseGroups(record: string, groupLengths: number[], stripped: string) {
+function parseWithCache(record: string, groupLengths: number[]) {
+	const cache = new Map<string, number>()
+	return parseGroups(record, groupLengths, cache)
+}
+
+function parseGroups(record: string, groupLengths: number[], cache: Map<string, number>, stripped: string = '') {
 	const numOfGroups = groupLengths.length
 
 	// exit condition
@@ -25,11 +29,20 @@ function parseGroups(record: string, groupLengths: number[], stripped: string) {
 	const firstChar = record.at(0)
 	switch (firstChar) {
 		case '.':
-			return parseGroups(record.substring(1), groupLengths, stripped.concat('.'))
+			return parseGroups(record.substring(1), groupLengths, cache, stripped.concat('.'))
 
 		case '?':
-			const replacedWithDot = parseGroups('.' + record.substring(1), groupLengths, stripped)
-			const replacedWithOct = parseGroups('#' + record.substring(1), groupLengths, stripped)
+			const key = record + '/' + groupLengths.join(',')
+
+			if (cache.has(key)) {
+				return cache.get(key)
+			}
+
+			let replacedWithDot = parseGroups('.' + record.substring(1), groupLengths, cache, stripped)
+			let replacedWithOct = parseGroups('#' + record.substring(1), groupLengths, cache, stripped)
+
+			cache.set(key, replacedWithDot + replacedWithOct)
+
 			return replacedWithDot + replacedWithOct
 
 		case '#':
@@ -46,6 +59,7 @@ function parseGroups(record: string, groupLengths: number[], stripped: string) {
 			return parseGroups(
 				record.substring(numOfChars + 1),
 				groupLengths.slice(1),
+				cache,
 				stripped + record.substring(0, numOfChars).replace(/\?/g, '#') + record.charAt(numOfChars).replace('?', '.'))
 
 		default:
@@ -57,39 +71,25 @@ const data = readFileSync(dataFile, 'utf8').split("\n").filter((line) => line !=
 const test = readFileSync(testFile, 'utf8').split("\n").filter((line) => line !== "")
 
 const input = data
-// console.log(input)
 
 const conditionRecords: conditionRecord[] = input.map(line => {
 	const [record, groupString] = line.split(' ')
-	const groupLengths = groupString.split(',').map(num => Number.parseInt(num))
+	const groupLengths = [new Array(5).fill(groupString)].join(',').split(',').map(num => Number.parseInt(num))
 
 	return {
-		record: record,
+		record: new Array<string>(5).fill(record).join('?'),
 		groupLengths: groupLengths,
-		// numOfGroups: groupLengths.length,
 	}
 })
 
 // console.log(conditionRecords)
 
-const record = conditionRecords[0]
-// console.log(`${record}\nREAL RECORD\n${record.record}`)
-// console.log(parseGroups(record.record, record.groupLengths, ''))
-
 let total = 0
-// let limit = 0
 for (let line of conditionRecords) {
-	// if (limit > 10) {
-	// 	break
-	// }
 	// console.log(line)
 	// console.log(`REAL RECORD\n${line.record}\n${'|'.repeat(line.record.length)}`)
-	const validConfigurations = parseGroups(line.record, line.groupLengths, '')
+	const validConfigurations = parseWithCache(line.record, line.groupLengths)
 	// console.log(`${validConfigurations}\n\n`)
 	total += validConfigurations
-
-	// limit += 1
 }
 console.log(total)
-
-// console.log(`${'#####'.replace(/'?'/g, '#')}`)
