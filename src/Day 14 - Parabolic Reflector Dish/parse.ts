@@ -27,6 +27,15 @@ function rotate(matrix: string[], rotation: Rotation): string[] {
 	return rotate(rotatedMatrix, rotation - 1)
 }
 
+function score(platform: string[]): number {
+	return platform.map((line) => {
+		return line.replace(/\./g, '').replace(/#/g, '')
+	}).reduce((total, value, i, arr) => {
+		console.log(`Line: ${arr.length - i}. Count: ${value}`)
+		return total + (value.length * (arr.length - i))
+	}, 0)
+}
+
 enum Rotation {
 	full,
 	ninty,
@@ -40,16 +49,10 @@ const dataFile = './data.txt'
 const data = readFileSync(dataFile, 'utf8').split("\n").filter((line) => line !== "")
 const test = readFileSync(testFile, 'utf8').split("\n").filter((line) => line !== "")
 
-const testArray = [
-	'ABCD',
-	'EFGH',
-	'IJKL'
-]
-
-const input = test
+const input = data
 console.log(input.join('\n'))
 console.log()
 
-console.log(testArray.join('\n'))
-console.log()
-console.log(rotate(testArray, Rotation.ninty).join('\n'))
+const boldersMovedNorth = rotate(shiftBoldersLeft(rotate(input, Rotation.twoSeventy)), Rotation.ninty)
+console.log(boldersMovedNorth.join('\n'))
+console.log(score(boldersMovedNorth))
