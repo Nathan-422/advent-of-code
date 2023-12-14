@@ -20,7 +20,7 @@ function rotate(matrix: string[], rotation: Rotation): string[] {
 	const rotatedMatrix = new Array<string>(matrix[0].length).fill('')
 	for (let i = 0; i < rotatedMatrix.length; i++) {
 		for (let j = 0; j < matrix.length; j++) {
-			rotatedMatrix[i] = rotatedMatrix[i].concat(matrix[j][matrix[0].length - 1 - i])
+			rotatedMatrix[i] = rotatedMatrix[i].concat(matrix[matrix.length - 1 - j][i])
 		}
 	}
 
