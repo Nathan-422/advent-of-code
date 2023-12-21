@@ -67,7 +67,7 @@ function getContentsFromPos(map: twoDArr, pos: Pos): Floor | Wall {
 	return symbol
 }
 
-function followBeamPaths(map: FloorMap, beam: BeamSeg): TreeNode[] {
+function followBeamPaths(map: FloorMap, beam: BeamSeg, energizedTiles: Map<string, Pos>): TreeNode[] {
 	if (beam.contents === null) {
 		return [{
 			contents: beam,
@@ -103,10 +103,9 @@ function followBeamPaths(map: FloorMap, beam: BeamSeg): TreeNode[] {
 
 		return {
 			contents: segment,
-			children: followBeamPaths(map, segment)
+			children: followBeamPaths(map, segment, energizedTiles)
 		}
 	})
-
 }
 
 function getBeamDirectionFromDir(floor: Floor, from: Dir): Array<Dir> {
@@ -147,7 +146,6 @@ function getBeamDirectionFromDir(floor: Floor, from: Dir): Array<Dir> {
 			}
 			return [getOppositeDir(from)]
 	}
-
 }
 
 const testFile = './test.txt'
@@ -162,56 +160,70 @@ const floorMap: FloorMap = {
 }
 
 const height = floorMap.contents.length
-const length = floorMap.contents[0].length
+const width = floorMap.contents[0].length
 
 // TODO: START here
 
-const start: Pos = { x: 0, y: 0 }
-const firstFloorTile = floorMap.at(floorMap.contents, start)
-const startingDirs = getBeamDirectionFromDir(firstFloorTile, Dir.WEST)
-const pathStart: BeamSeg = {
-	pos: start,
-	contents: firstFloorTile,
-	from: Dir.WEST,
-	to: startingDirs
-}
-const energizedTiles = new Map<string, Pos>()
-energizedTiles.set('' + pathStart.from + '-' + pathStart.pos.x + '-' + pathStart.pos.y, pathStart.pos)
-
-const tree: TreeNode = {
-	contents: pathStart,
-	children: followBeamPaths(floorMap, pathStart)
-}
-
-const energizedDisplay = new Array<string[]>(height)
-for (let i = 0; i < height; i++) {
-	energizedDisplay[i] = new Array(length).fill('.')
-}
-
-for (let coord of energizedTiles.values()) {
-	if (
-		coord.x >= 0 &&
-		coord.x < floorMap.contents[0].length &&
-		coord.y >= 0 &&
-		coord.y < floorMap.contents.length
-	) {
-		const floorTile = floorMap.contents[coord.y][coord.x]
-		energizedDisplay[coord.y][coord.x] = floorTile === '.' ? '#' : floorTile
+function countEnergizedTitles(startingPos: Pos, startGoing: Dir): number {
+	const start: Pos = startingPos
+	const firstFloorTile = floorMap.at(floorMap.contents, start)
+	const startingDirs = getBeamDirectionFromDir(firstFloorTile, startGoing)
+	const pathStart: BeamSeg = {
+		pos: start,
+		contents: firstFloorTile,
+		from: startGoing,
+		to: startingDirs
 	}
+	const energizedTiles = new Map<string, Pos>()
+	energizedTiles.set('' + pathStart.from + '-' + pathStart.pos.x + '-' + pathStart.pos.y, pathStart.pos)
+
+	const tree: TreeNode = {
+		contents: pathStart,
+		children: followBeamPaths(floorMap, pathStart, energizedTiles)
+	}
+
+	const energizedDisplay = new Array<string[]>(height)
+	for (let i = 0; i < height; i++) {
+		energizedDisplay[i] = new Array(width).fill('.')
+	}
+
+	for (let coord of energizedTiles.values()) {
+		if (
+			coord.x >= 0 &&
+			coord.x < floorMap.contents[0].length &&
+			coord.y >= 0 &&
+			coord.y < floorMap.contents.length
+		) {
+			const floorTile = floorMap.contents[coord.y][coord.x]
+			energizedDisplay[coord.y][coord.x] = floorTile === '.' ? '#' : floorTile
+		}
+	}
+
+	return energizedDisplay.reduce((total, line) => {
+		return total + line.reduce((lineSum, char) => {
+			if (char !== '.') {
+				return lineSum + 1
+			}
+			return lineSum + 0
+		}, 0)
+	}, 0)
+
+	// TODO: End here
 }
 
-// TODO: End here
+const initalPos = { x: 0, y: 0 }
+const initalDir = Dir.WEST
+
+console.log(countEnergizedTitles(initalPos, initalDir))
+
+// for (let y = 0; y < 2; y++) {
+// 	for (let x = 0; x < width; x++) {
+//
+// 	}
+// }
 
 // console.log(energizedDisplay.map(line => {
 // 	return line.join('')
 // }).join('\n'))
 
-console.log(energizedDisplay.reduce((total, line) => {
-	return total + line.reduce((lineSum, char) => {
-		if (char !== '.') {
-			return lineSum + 1
-		}
-		return lineSum + 0
-	}, 0)
-}, 0))
 
