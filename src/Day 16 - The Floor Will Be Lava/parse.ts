@@ -211,19 +211,38 @@ function countEnergizedTitles(startingPos: Pos, startGoing: Dir): number {
 	// TODO: End here
 }
 
-const initalPos = { x: 0, y: 0 }
-const initalDir = Dir.WEST
+const counts: number[] = new Array()
 
-console.log(countEnergizedTitles(initalPos, initalDir))
+for (let y = 0; y < 2; y++) {
+	for (let x = 0; x < width; x++) {
+		if (y === 0) {
+			counts.push(countEnergizedTitles({ x: x, y: y }, Dir.NORTH))
+		} else {
+			counts.push(countEnergizedTitles({ x: x, y: floorMap.contents.length - 1 }, Dir.SOUTH))
+		}
 
-// for (let y = 0; y < 2; y++) {
-// 	for (let x = 0; x < width; x++) {
-//
-// 	}
-// }
+	}
+}
 
-// console.log(energizedDisplay.map(line => {
-// 	return line.join('')
-// }).join('\n'))
+for (let x = 0; x < 2; x++) {
+	for (let y = 0; y < height; y++) {
+		if (x === 0) {
+			counts.push(countEnergizedTitles({ x: x, y: y }, Dir.WEST))
+		} else {
+			counts.push(countEnergizedTitles({ x: floorMap.contents[0].length - 1, y: y }, Dir.EAST))
+		}
+
+	}
+}
+
+console.log(counts.join(','))
+
+console.log(counts.reduce((highest, current) => {
+	if (highest < current) {
+		return current
+	}
+	return highest
+}))
+
 
 
