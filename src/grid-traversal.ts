@@ -22,13 +22,13 @@ function getOppositeDir(dir: Dir): Dir {
 function getCoordOffsetFromDir(dir: Dir): Pos {
 	switch (dir) {
 		case Dir.WEST:
-			return { x: 0, y: -1 }
-		case Dir.EAST:
-			return { x: 0, y: 1 }
-		case Dir.NORTH:
 			return { x: -1, y: 0 }
-		case Dir.SOUTH:
+		case Dir.EAST:
 			return { x: 1, y: 0 }
+		case Dir.NORTH:
+			return { x: 0, y: -1 }
+		case Dir.SOUTH:
+			return { x: 0, y: 1 }
 	}
 }
 
@@ -53,9 +53,9 @@ type LinkedList = {
 
 
 
-function getCoordFromDir(loc: Loc, dir: Dir): Pos {
+function getCoordFromDir(pos: Pos, dir: Dir): Pos {
 	const { x, y } = getCoordOffsetFromDir(dir)
-	return { x: loc.pos.x + x, y: loc.pos.y + y }
+	return { x: pos.x + x, y: pos.y + y }
 }
 
 
