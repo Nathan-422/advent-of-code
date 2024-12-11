@@ -10,43 +10,48 @@ def getDifferences(line):
     return difference
 
 
-def isValid(line):
+def isValidDirection(line):
     direction = 'neutral'
 
-    for n in line:
+    for n in range(len(line)):
+        if n == len(line):
+            return True
+
+        n1 = line[n]
+        n2 = line[n + 1]
+        difference = n2-n1
         match direction:
             case 'neutral':
-                if (n > 0 and n <= 3):
+                if (n == 0 and difference == 0):
+                    continue
+                elif (difference > 0):
                     direction = 'increasing'
-                elif (n < 0 and n >= -3):
+                elif (difference < 0):
                     direction = 'decreasing'
-                else:
-                    return False
             case 'increasing':
-                if (n < 1 or n > 3):
+                if (difference < 0):
                     return False
             case 'decreasing':
-                if (n < -3 or n > -1):
+                if (difference > 0):
                     return False
-    return True
 
 
 def isPermutationValid(line):
     for n in range(len(line)):
         modified = copy.deepcopy(line).pop(n)
-        if (isValid(getDifferences(modified))):
+        if (isValidDirection(getDifferences(modified))):
             return True
     return False
 
 
 with open('test.txt', 'r') as file:
-    safe_lines = 0
+    safe_reports = 0
     for raw_line in file:
         line = [int(x) for x in raw_line.rstrip('\n').split(' ')]
         diffs = getDifferences(line)
 
-        if (isValid(diffs) or isPermutationValid(line)):
-            safe_lines += 1
+        if (isValidDirection(diffs) or isPermutationValid(line)):
+            safe_reports += 1
 
         # print("% s is % s" % (line, 'Safe' if isValid(diffs) else 'UNsafe'))
-    print(safe_lines)
+    print(safe_reports)
