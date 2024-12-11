@@ -1,20 +1,11 @@
 import copy
 
 
-def getDifferences(line):
-    difference = []
-    for i in range(len(line)):
-        if i == len(line) - 1:
-            return difference
-        difference.append(int(line[i]) - int(line[i + 1]))
-    return difference
-
-
 def isValidDirection(line):
     direction = 'neutral'
 
     for n in range(len(line)):
-        if n == len(line):
+        if (n + 1 == len(line)):
             return True
 
         n1 = line[n]
@@ -22,12 +13,12 @@ def isValidDirection(line):
         difference = n2-n1
         match direction:
             case 'neutral':
-                if (n == 0 and difference == 0):
-                    continue
-                elif (difference > 0):
+                if (difference > 0):
                     direction = 'increasing'
                 elif (difference < 0):
                     direction = 'decreasing'
+                else:
+                    return False
             case 'increasing':
                 if (difference < 0):
                     return False
@@ -36,21 +27,38 @@ def isValidDirection(line):
                     return False
 
 
-def isPermutationValid(line):
+def isRecordInRange(line):
     for n in range(len(line)):
-        modified = copy.deepcopy(line).pop(n)
-        if (isValidDirection(getDifferences(modified))):
+        if (n + 1 == len(line)):
+            return True
+        n1 = line[n]
+        n2 = line[n + 1]
+        diff = abs(n2 - n1)
+
+        if (diff == 0 or diff > 3):
+            return False
+    return True
+
+
+def isReportSafe(line):
+    return isValidDirection(line) and isRecordInRange(line)
+
+
+def isValidWithReportRemoved(line):
+    for n in range(len(line)):
+        modified = copy.deepcopy(line)
+        modified.pop(n)
+        if (isReportSafe(modified)):
             return True
     return False
 
 
-with open('test.txt', 'r') as file:
+with open('data.txt', 'r') as file:
     safe_reports = 0
     for raw_line in file:
         line = [int(x) for x in raw_line.rstrip('\n').split(' ')]
-        diffs = getDifferences(line)
 
-        if (isValidDirection(diffs) or isPermutationValid(line)):
+        if (isReportSafe(line) or isValidWithReportRemoved(line)):
             safe_reports += 1
 
         # print("% s is % s" % (line, 'Safe' if isValid(diffs) else 'UNsafe'))
