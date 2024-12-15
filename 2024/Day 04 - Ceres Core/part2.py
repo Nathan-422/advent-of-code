@@ -1,31 +1,27 @@
-import re
-
 puzzle = []
 with open('./data.txt', 'r') as file:
     for line in file:
         puzzle.append(line.rstrip('\n'))
 
-search_re = re.compile(r"XMAS")
 matches = 0
 
-for i in range(4):
-    # check each line for matches
-    for row in puzzle:
-        matches += len(re.findall(search_re, row))
+rows = len(puzzle)
+columns = len(puzzle[0])
+for i in range(rows):
+    if (i == 0 or i == rows - 1):
+        continue
+    for j in range(columns):
+        if (j == 0 or j == columns - 1):
+            continue
+        if (puzzle[i][j] == 'A'):
+            x = [puzzle[i-1][j-1]+'A'+puzzle[i+1][j+1],
+                 puzzle[i+1][j-1]+'A'+puzzle[i-1][j+1]]
 
-    # rotate puzzle 45 degree
-    rows = len(puzzle)
-    columns = len(puzzle[0])
-    puzzle_dutch = ["" for x in range(rows + columns - 1)]
-    for j in range(rows):
-        for k in range(columns):
-            puzzle_dutch[j + k] = puzzle[j][k] + puzzle_dutch[j + k]
+            if ((x[0] == "MAS" or x[0] == "SAM") and
+                    (x[1] == "MAS" or x[1] == "SAM")):
+                matches += 1
 
-    # check for matches again
-    for row in puzzle_dutch:
-        matches += len(re.findall(search_re, row))
-
-    # Rotate puzzle for next loop
-    puzzle = list([''.join(map(str, i)) for i in zip(*puzzle[::-1])])
+# Rotate puzzle for next loop
+puzzle = list([''.join(map(str, i)) for i in zip(*puzzle[::-1])])
 
 print(matches)
