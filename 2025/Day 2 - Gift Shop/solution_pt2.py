@@ -1,16 +1,15 @@
 file = "data.txt"
-# file = "example.txt"
+file = "example.txt"
+
+total_invalid_ids = 0
 
 with open(file) as data:
-    id_ranges = data.readline().strip("\n").split(",")
     # 11-22,95-115,998-1012
-
-    total_invalid_ids = 0
-
+    id_ranges = data.readline().strip("\n").split(",")
     print(id_ranges)
-    for range_unsplit in id_ranges:
-        # 11-22
 
+    # 11-22
+    for range_unsplit in id_ranges:
         # We want to count by length n/2 (rounded up) increments to skip iterating over all numbers
         # So for 11-22 we can count by 1s
         # for 100-250 we can count by 10s
