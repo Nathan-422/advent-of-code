@@ -16,6 +16,10 @@ with open(file) as data:
         # for 100-250 we can count by 10s
         # for 1000-1227 we can count by 100s etc...
 
+        # throw out single digit values
+        if range_unsplit.split("-")[0].__len__() == 1:
+            range_unsplit = f"10-{range_unsplit.split('-')[1]}"
+
         # "11", "22" - strings
         sStart, sStop = range_unsplit.split("-")
         iStart, iStop = [int(string) for string in range_unsplit.split("-")]
