@@ -39,46 +39,23 @@ with open(file) as data:
         start_len = sStart.__len__()
         stop_len = sStop.__len__()
 
-        if start_len == 1:
-            start_first_half = 0
-            stop_first_half = 0
-        else:
-            start_first_half = int(sStart[: -1 * (start_len // 2)])
-            stop_first_half = int(sStop[: -1 * (start_len // 2)])
+        start_first_half = int(sStart[: -1 * (start_len // 2)])
+        stop_first_half = int(sStop[: -1 * (start_len // 2)])
 
         print(f"start num: {sStart}")
         print(f"start len: {start_len}")
 
         if start_len % 2 == 1:
             # print("Starting number is odd length")
-            if start_len == 1:
-                start_first_half = iStart
-                stop_first_half = iStop
-            else:
-                digits_to_remove = -1 * ((start_len // 2) + 1)
-                start_first_half = int(sStart[:digits_to_remove])
-                stop_first_half = int(sStop[:digits_to_remove])
+            digits_to_remove = -1 * ((start_len // 2) + 1)
+            start_first_half = int(sStart[:digits_to_remove])
+            stop_first_half = int(sStop[:digits_to_remove])
 
         for i in range(start_first_half, stop_first_half + 1):
-            if start_len == 1:
-                if i <= 10:
-                    continue
+            repeat = int(f"{i}{i}")
 
-                repeat = int(f"{i}{i}")
-                if repeat > 10 and repeat in range(iStart, iStop + 1):
-                    print(f"Found repeat: {repeat}")
-                    total_invalid_ids += repeat
-                print(repeat)
-            else:
-                repeat = int(f"{i}{i}")
+            if repeat in range(iStart, iStop + 1):
+                # print(f"Found repeat: {repeat}")
+                total_invalid_ids += repeat
 
-                if repeat in range(iStart, iStop + 1):
-                    # print(f"Found repeat: {repeat}")
-                    total_invalid_ids += repeat
-
-            # print(repeat)
-
-        # print()
     print(total_invalid_ids)
-    # for i in range(start, stop + 1):
-    #     ids.setdefault(i,1,)
