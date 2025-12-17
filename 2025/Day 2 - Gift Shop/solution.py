@@ -57,18 +57,22 @@ with open(file) as data:
 
         for i in range(start_first_half, stop_first_half + 1):
             if start_len == 1:
-                repeat = i
+                if i <= 10:
+                    continue
+
+                repeat = int(f"{i}{i}")
                 if repeat > 10 and repeat in range(iStart, iStop + 1):
                     print(f"Found repeat: {repeat}")
                     total_invalid_ids += repeat
+                print(repeat)
             else:
                 repeat = int(f"{i}{i}")
 
                 if repeat in range(iStart, iStop + 1):
-                    print(f"Found repeat: {repeat}")
+                    # print(f"Found repeat: {repeat}")
                     total_invalid_ids += repeat
 
-            print(repeat)
+            # print(repeat)
 
         # print()
     print(total_invalid_ids)
