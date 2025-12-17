@@ -18,6 +18,7 @@ with open(file) as data:
 
         # "11", "22" - strings
         sStart, sStop = range_unsplit.split("-")
+        iStart, iStop = [int(string) for string in range_unsplit.split("-")]
 
         # normalize to increment by 1
         #
@@ -46,18 +47,28 @@ with open(file) as data:
 
         if start_len % 2 == 1:
             # print("Starting number is odd length")
-            digits_to_remove = -1 * ((start_len // 2) + 1)
-            start_first_half = int(sStart[:digits_to_remove])
-            stop_first_half = int(sStop[:digits_to_remove])
+            if start_len == 1:
+                start_first_half = iStart
+                stop_first_half = iStop
+            else:
+                digits_to_remove = -1 * ((start_len // 2) + 1)
+                start_first_half = int(sStart[:digits_to_remove])
+                stop_first_half = int(sStop[:digits_to_remove])
 
         for i in range(start_first_half, stop_first_half + 1):
-            repeat = int(f"{i}{i}")
+            if start_len == 1:
+                repeat = i
+                if repeat > 10 and repeat in range(iStart, iStop + 1):
+                    print(f"Found repeat: {repeat}")
+                    total_invalid_ids += repeat
+            else:
+                repeat = int(f"{i}{i}")
 
-            iStart, iStop = [int(string) for string in range_unsplit.split("-")]
+                if repeat in range(iStart, iStop + 1):
+                    print(f"Found repeat: {repeat}")
+                    total_invalid_ids += repeat
 
-            if repeat in range(iStart, iStop + 1):
-                print(f"Found repeat: {repeat}")
-                total_invalid_ids += repeat
+            print(repeat)
 
         # print()
     print(total_invalid_ids)
