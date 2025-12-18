@@ -13,6 +13,36 @@ def get_greatest_factor(factor: list[int]):
     return factor[-2]
 
 
+def digits_increased(previous_num: int, num: int):
+    return str(previous_num).__len__() != str(num).__len__()
+
+
+def find_repeats(start: int, stop: int, collection: dict[int, bool]):
+    fact = list(factors(len(str(start))))
+    fact.sort()
+    start_len = get_greatest_factor(fact)
+
+    digits_to_remove = str(start).__len__() - start_len
+    start_first_segment = int(str(start)[: -1 * digits_to_remove])
+    stop_first_segment = int(str(stop)[: -1 * digits_to_remove])
+
+    previous_num = start_first_segment
+    for i in range(start_first_segment, stop_first_segment + 1):
+        # escape
+        if digits_increased(previous_num, i):
+            collection = find_repeats(i * 10**digits_to_remove, stop, collection)
+            break
+
+        repeat = int(f"{i}{i}")
+
+        if repeat in range(start, stop + 1):
+            # print(f"Found repeat: {repeat}")
+            _ = collection.setdefault(repeat, True)
+
+        previous_num = i
+    return collection
+
+
 file = "data.txt"
 file = "example.txt"
 
